@@ -1,19 +1,19 @@
 package io.fnproject.kafkaconnect.sink;
 
+import org.apache.kafka.common.config.ConfigDef;
+import org.apache.kafka.connect.connector.Task;
+import org.apache.kafka.connect.sink.SinkConnector;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.kafka.common.config.ConfigDef;
-import org.apache.kafka.connect.connector.Task;
-import org.apache.kafka.connect.sink.SinkConnector;
-
 public class FnSinkConnector extends SinkConnector {
 
     private Map<String, String> configProperties;
-    
-        
+
+
     @Override
     public void start(Map<String, String> config) {
         this.configProperties = config;

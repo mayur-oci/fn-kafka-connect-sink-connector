@@ -33,7 +33,7 @@ public final class FnInvocationConfig {
 
         @Override
         public void ensureValid(String configName, Object privateKeyLocation) {
-            if (!((String)privateKeyLocation).endsWith(".pem")) {
+            if (!((String) privateKeyLocation).endsWith(".pem")) {
                 throw new ConfigException(configName, privateKeyLocation, "Private key should be of type PEM with a .pem extension");
             }
         }
