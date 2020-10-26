@@ -1,4 +1,4 @@
-FROM confluentinc/cp-kafka-connect-base:5.4.0
+FROM confluentinc/cp-kafka-connect-base:latest
 
 # Copy connector JAR
 ENV CONNECTOR_JAR_PATH target/fn-kafkaconnect-sink-connector-1.0.jar
