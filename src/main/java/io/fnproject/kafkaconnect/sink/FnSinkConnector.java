@@ -1,5 +1,6 @@
 package io.fnproject.kafkaconnect.sink;
 
+import com.oracle.bmc.auth.BasicAuthenticationDetailsProvider;
 import org.apache.kafka.common.config.ConfigDef;
 import org.apache.kafka.connect.connector.Task;
 import org.apache.kafka.connect.sink.SinkConnector;
@@ -10,14 +11,13 @@ import java.util.List;
 import java.util.Map;
 
 public class FnSinkConnector extends SinkConnector {
-
     private Map<String, String> configProperties;
-
 
     @Override
     public void start(Map<String, String> config) {
         this.configProperties = config;
-        System.out.println("Connector started with config " + config);
+        BasicAuthenticationDetailsProvider provider = IdentityOciProvider.provider;
+        System.out.println("FnSinkConnector started with config " + config + " and identity "+ provider);
     }
 
     @Override
@@ -27,6 +27,8 @@ public class FnSinkConnector extends SinkConnector {
 
     @Override
     public List<Map<String, String>> taskConfigs(int numOfMaxTasks) {
+        System.out.println("Max Tasks is : " + numOfMaxTasks);
+
         List<Map<String, String>> taskConfigs = new ArrayList<>();
         Map<String, String> properties = new HashMap<>();
         properties.putAll(configProperties);
@@ -50,7 +52,6 @@ public class FnSinkConnector extends SinkConnector {
 
     @Override
     public String version() {
-        //TODO
         return "v1.0";
     }
 

@@ -8,13 +8,13 @@ import java.util.Collection;
 import java.util.Map;
 
 public class FnInvocationTask extends SinkTask {
-
     private Map<String, String> config;
 
     @Override
     public void start(Map<String, String> config) {
-        System.out.println("Task started with config... " + config);
         this.config = config;
+        //OciFunction.initialize(config);
+        System.out.println("Task started with config... " + config);
     }
 
     @Override
@@ -24,25 +24,34 @@ public class FnInvocationTask extends SinkTask {
                 .forEach((tp) -> System.out.println("Task assigned partition " + tp.partition() + " in topic " + tp.topic()));
     }
 
-
     @Override
     public void put(Collection<SinkRecord> records) {
         System.out.println("No. of records " + records.size());
 
         for (SinkRecord record : records) {
-            System.out.println("Got record from offset " + record.kafkaOffset() + " in partition " + record.kafkaPartition() + " of topic " + record.topic());
-            System.out.println("Message with value " + (String) record.value());
+            System.out.println("Got record from offset " + record.kafkaOffset()
+                    + " in partition " + record.kafkaPartition() + " of topic " + record.topic());
+            if (record.key() != null)
+                System.out.println("Key type is :" + record.key().getClass().getCanonicalName());
+            if (record.value() != null) {
+                System.out.println("Value type is :" + record.value().getClass().getCanonicalName());
+                System.out.println("Message with value:->  " + record.value());
+                //OciFunction.invokeFunction(record.value().toString());
+            }
         }
     }
 
+
     @Override
     public void stop() {
-        System.out.println("Task stopped... ");
+        //OciFunction.closeFn();
+        System.out.println("FnSink Task stopped... ");
     }
 
     @Override
     public String version() {
-        System.out.println("Getting Task version...");
+        System.out.println("Getting FnSink Task version...");
         return "v1.0";
     }
+
 }

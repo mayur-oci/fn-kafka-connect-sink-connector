@@ -1,51 +1,67 @@
+CONNECT_HARNESS_OCID='ocid1.connectharness.oc1.phx.amaaaaaauwpiejqamsosflwbo75cg4ft7bpgcglrlqd3mfbwmhhib6v6bd4q'
+OCID_STREAM_POOL='ocid1.streampool.oc1.phx.amaaaaaauwpiejqactzuddgmegg42gkhwpz24wy6k7ka3n24nc52mpzqfvua'
+OCI_STREAM_USERNAME="intrandallbarnes/mayur.raleraskar@oracle.com/$OCID_STREAM_POOL"
+OCI_STREAM_PARTITIONS_COUNT=1
 
 docker build --build-arg PRIVATE_KEY_NAME=private_key.pem -t kafka-connect-fn-sink .
 
-
-docker run --rm -it  \
-  --name=kafka-connect \
-  --net=host \
-  -e CONNECT_BOOTSTRAP_SERVERS=streaming.us-phoenix-1.oci.oraclecloud.com:9092 \
+docker run --rm -it \
+  --name=KafkaConnect \
+  -p 8082:8082 \
+  -p 9092:9092 \
+  -e CONNECT_BOOTSTRAP_SERVERS=cell-1.streaming.us-phoenix-1.oci.oraclecloud.com:9092 \
   -e CONNECT_REST_PORT=8082 \
-  -e CONNECT_GROUP_ID="quickstart" \
-  -e CONNECT_CONFIG_STORAGE_TOPIC="ocid1.connectharness.oc1.phx.amaaaaaauwpiejqai6tacsbd2v4azp6ltnbuqtlvbzrmxvtv26mnumoouoaq-config" \
-  -e CONNECT_OFFSET_STORAGE_TOPIC="ocid1.connectharness.oc1.phx.amaaaaaauwpiejqai6tacsbd2v4azp6ltnbuqtlvbzrmxvtv26mnumoouoaq-offsets" \
-  -e CONNECT_STATUS_STORAGE_TOPIC="ocid1.connectharness.oc1.phx.amaaaaaauwpiejqai6tacsbd2v4azp6ltnbuqtlvbzrmxvtv26mnumoouoaq-status" \
+  -e CONNECT_GROUP_ID="newCG100" \
+  -e CONNECT_CONFIG_STORAGE_TOPIC="$CONNECT_HARNESS_OCID-config" \
+  -e CONNECT_OFFSET_STORAGE_TOPIC="$CONNECT_HARNESS_OCID-offset" \
+  -e CONNECT_STATUS_STORAGE_TOPIC="$CONNECT_HARNESS_OCID-status" \
   -e CONNECT_KEY_CONVERTER="org.apache.kafka.connect.json.JsonConverter" \
   -e CONNECT_VALUE_CONVERTER="org.apache.kafka.connect.json.JsonConverter" \
   -e CONNECT_INTERNAL_KEY_CONVERTER="org.apache.kafka.connect.json.JsonConverter" \
   -e CONNECT_INTERNAL_VALUE_CONVERTER="org.apache.kafka.connect.json.JsonConverter" \
+  -e CONNECT_KEY_CONVERTER_SCHEMAS_ENABLE=false \
+  -e CONNECT_VALUE_CONVERTER_SCHEMAS_ENABLE=false \
   -e CONNECT_REST_ADVERTISED_HOST_NAME="localhost" \
-  -e CONNECT_LOG4J_ROOT_LOGLEVEL="INFO" \
-  -e CONNECT_PLUGIN_PATH="/usr/share/java" \
-                                         \
-  -e CONNECT_SASL_MECHANISM=PLAIN \
+  -e CONNECT_LOG4J_ROOT_LOGLEVEL="DEBUG" \
+  -e CONNECT_PLUGIN_PATH=/usr/share/java,/etc/kafka-connect/jars -e CONNECT_CONFIG_STORAGE_REPLICATION_FACTOR=1 -e CONNECT_STATUS_STORAGE_REPLICATION_FACTOR=1 -e CONNECT_OFFSET_STORAGE_REPLICATION_FACTOR=1 \
+  -e \
+  CONNECT_SASL_MECHANISM=PLAIN \
   -e CONNECT_SECURITY_PROTOCOL=SASL_SSL \
-  -e CONNECT_SASL_JAAS_CONFIG="org.apache.kafka.common.security.plain.PlainLoginModule required username=\"intrandallbarnes/mayur.raleraskar@oracle.com/ocid1.streampool.oc1.phx.amaaaaaauwpiejqactzuddgmegg42gkhwpz24wy6k7ka3n24nc52mpzqfvua\" password=\"2m{s4WTCXysp:o]tGx4K\";" \
+  -e CONNECT_SASL_JAAS_CONFIG="org.apache.kafka.common.security.plain.PlainLoginModule required username=\"${OCI_STREAM_USERNAME}\" password=\"2m{s4WTCXysp:o]tGx4K\";" \
   -e CONNECT_PRODUCER_SASL_MECHANISM=PLAIN \
   -e CONNECT_PRODUCER_SECURITY_PROTOCOL=SASL_SSL \
-  -e CONNECT_PRODUCER_SASL_JAAS_CONFIG="org.apache.kafka.common.security.plain.PlainLoginModule required username=\"intrandallbarnes/mayur.raleraskar@oracle.com/ocid1.streampool.oc1.phx.amaaaaaauwpiejqactzuddgmegg42gkhwpz24wy6k7ka3n24nc52mpzqfvua\" password=\"2m{s4WTCXysp:o]tGx4K\";" \
+  -e CONNECT_PRODUCER_SASL_JAAS_CONFIG="org.apache.kafka.common.security.plain.PlainLoginModule required username=\"${OCI_STREAM_USERNAME}\" password=\"2m{s4WTCXysp:o]tGx4K\";" \
   -e CONNECT_CONSUMER_SASL_MECHANISM=PLAIN \
   -e CONNECT_CONSUMER_SECURITY_PROTOCOL=SASL_SSL \
-  -e CONNECT_CONSUMER_SASL_JAAS_CONFIG="org.apache.kafka.common.security.plain.PlainLoginModule required username=\"intrandallbarnes/mayur.raleraskar@oracle.com/ocid1.streampool.oc1.phx.amaaaaaauwpiejqactzuddgmegg42gkhwpz24wy6k7ka3n24nc52mpzqfvua\" password=\"2m{s4WTCXysp:o]tGx4K\";" \
+  -e CONNECT_CONSUMER_SASL_JAAS_CONFIG="org.apache.kafka.common.security.plain.PlainLoginModule required username=\"${OCI_STREAM_USERNAME}\" password=\"2m{s4WTCXysp:o]tGx4K\";" \
+  -e KAFKA_HEAP_OPTS="-Xms256M -Xmx2G -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:9092" \
+  -v /Users/mraleras/.oci:/oci \
   kafka-connect-fn-sink:latest
 
-
+exit
 sleep 5
+
+OCI_CURRENT_REGION=us-phoenix-1
+FN_APP_NAME=fn_oss_app_test
+OCI_STREAM_PARTITIONS_COUNT=1
+OCI_STREAM_NAME=testnew
+OCI_CMPT_OCID=xyz
+FN_CONSUMER_FUNCTION_NAME=reviewConsumerFn
 
 curl -X POST \
   http://localhost:8082/connectors \
   -H 'content-type: application/json' \
-  -d '{
-  "name": "FnSinkConnector",
-  "config": {
-    "connector.class": "io.fnproject.kafkaconnect.sink.FnSinkConnector",
-    "tasks.max": "2",
-    "topics": "test-sink-topic",
-    "tenant_ocid": "<tenant_ocid>",
-    "user_ocid": "<user_ocid>",
-    "public_fingerprint": "<public_fingerprint>",
-    "private_key_location": "/etc/kafka-connect/secrets/<private_key_name>",
-    "function_url": "<FUNCTION_URL>"
+  -d "{
+  \"name\": \"FnSinkConnector\",
+  \"config\": {
+    \"connector.class\": \"io.fnproject.kafkaconnect.sink.FnSinkConnector\",
+    \"tasks.max\": \"${OCI_STREAM_PARTITIONS_COUNT}\",
+    \"topics\": \"${OCI_STREAM_NAME}\",
+    \"ociRegionForFunction\": \"${OCI_CURRENT_REGION}\",
+    \"ociCompartmentIdForFunction\": \"${OCI_CMPT_OCID}\",
+    \"functionAppName\": \"${FN_APP_NAME}\",
+    \"functionName\": \"${FN_APP_NAME}\"
   }
-}'
+}"
+
+# KAFKA_HEAP_OPTS
